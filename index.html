@@ -949,7 +949,11 @@
         <!-- Header Section -->
         <div class="app-header">
             <div id="header-left"></div>
-            <div id="header-stat" class="streak-counter">🔥 Lvl 1</div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <!-- Nhãn trạng thái đồng bộ thầm lặng cực kì đáng yêu -->
+                <span id="sync-status-indicator" style="font-size: 11px; color: var(--primary); font-weight: 700; opacity: 0; transition: opacity 0.3s;"></span>
+                <div id="header-stat" class="streak-counter">🔥 Lvl 1</div>
+            </div>
         </div>
 
         <!-- HOME DASHBOARD -->
@@ -985,7 +989,7 @@
                     </div>
                 </div>
 
-                <!-- TAB 1: ALL-IN-ONE CARD (Static Display, Tap to Play Speech) -->
+                <!-- TAB 1: ALL-IN-ONE CARD -->
                 <div id="tab-content-flash" class="flashcard-wrapper" style="display: none;">
                     <div class="card-perspective">
                         <div class="flashcard" id="main-card" onclick="playCurrentAudio(event)">
@@ -1014,7 +1018,7 @@
                     </div>
                 </div>
 
-                <!-- TAB 2: MEANING SELECTION PLAYGROUND -->
+                <!-- TAB 2: MEANING SELECTION -->
                 <div id="tab-content-quiz" class="quiz-wrapper" style="display: none;">
                     <div class="challenge-bar">
                         <div class="challenge-label">
@@ -1038,7 +1042,7 @@
                     <div class="quiz-option-grid" id="quiz-options"></div>
                 </div>
 
-                <!-- TAB 3: LISTENING AUDITION GAME -->
+                <!-- TAB 3: LISTENING AUDITION -->
                 <div id="tab-content-listen" class="quiz-wrapper" style="display: none;">
                     <div class="challenge-bar">
                         <div class="challenge-label">
@@ -1162,11 +1166,10 @@
     <script>
         const CONFIG = { voiceRate: 0.82, voicePitch: 1.1 };
 
-        // Liên kết Google Sheets tích hợp mặc định vĩnh viễn
+        // Liên kết Google Sheets mặc định vĩnh viễn
         const DEFAULT_SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1S2d5jk0UL1bHKbgYLKZZoh3-WUKHv6m4ot33zB4Nrjg/edit?usp=sharing";
 
         const DEFAULT_VOCABULARY_DATA = [
-            // CHỦ ĐỀ 1: Ăn uống & Trái cây (🍒)
             { hanzi: "西瓜", pinyin: "xīguā", meaning: "Dưa hấu", category: "🍒 Ăn uống", emoji: "🍉" },
             { hanzi: "香蕉", pinyin: "xiāngjiāo", meaning: "Quả chuối", category: "🍒 Ăn uống", emoji: "🍌" },
             { hanzi: "蛋糕", pinyin: "dàngāo", meaning: "Bánh ga-tô", category: "🍒 Ăn uống", emoji: "🍰" },
@@ -1224,11 +1227,11 @@
             spawnSakuraBackground();
             loadSyncConfiguration();
             
-            // Luôn tự động đồng bộ thầm lặng ở nền mỗi khi mở app để lấy từ mới nhất
+            // Tự động đồng bộ thầm lặng ở nền mỗi khi mở ứng dụng
             autoSyncOnEveryLoad();
         };
 
-        // Tạo hiệu ứng rơi cánh hoa đào mềm mại
+        // Hiệu ứng rơi cánh hoa đào
         function spawnSakuraBackground() {
             const container = document.getElementById('sakura-particles');
             const totalPetals = 15;
@@ -1236,11 +1239,9 @@
                 const petal = document.createElement('div');
                 petal.className = 'petal';
                 resetPetalStyle(petal);
-                // Thiết lập lệch thời gian xuất phát ngẫu nhiên
                 petal.style.animationDelay = `${Math.random() * 8}s`;
                 container.appendChild(petal);
                 
-                // Reset cánh hoa sau mỗi vòng lặp
                 petal.addEventListener('animationiteration', () => {
                     resetPetalStyle(petal);
                 });
@@ -1248,12 +1249,12 @@
         }
 
         function resetPetalStyle(petal) {
-            const size = Math.random() * 12 + 8; // Kích thước ngẫu nhiên từ 8px - 20px
+            const size = Math.random() * 12 + 8;
             petal.style.width = `${size}px`;
             petal.style.height = `${size}px`;
             petal.style.left = `${Math.random() * 100}%`;
             petal.style.top = `${-20}px`;
-            petal.style.animationDuration = `${Math.random() * 6 + 7}s`; // Thời gian rơi từ 7s - 13s
+            petal.style.animationDuration = `${Math.random() * 6 + 7}s`;
         }
 
         function showProfileHeader() {
@@ -1282,7 +1283,7 @@
             topicsList.innerHTML = '';
 
             if (CATEGORIES.length === 0) {
-                topicsList.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:30px; font-weight:700;">Kho trống rỗng, hãy nhấn avatar 👸 ➔ 🛠️ để cấu hình đám mây đồng bộ nhé!</div>`;
+                topicsList.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:30px; font-weight:700;">Kho trống rỗng, hãy nhấn avatar 👸 ➔ 🛠️ để đồng bộ nhé!</div>`;
                 return;
             }
 
@@ -1779,13 +1780,21 @@
             }
         }
 
+        // --- TỰ ĐỘNG ĐỒNG BỘ THẦM LẶNG MỖI LẦN MỞ APP ---
         async function autoSyncOnEveryLoad() {
-            // Hiển thị ngay từ vựng đang có sẵn trong máy để bé học luôn không cần chờ mạng tải
+            // Hiển thị ngay từ vựng đang có sẵn trong bộ nhớ đệm để bé học ngay lập tức, không bắt đợi tải mạng
             renderHomeScreen();
             showProfileHeader();
 
+            const syncIndicator = document.getElementById('sync-status-indicator');
+            if (syncIndicator) {
+                syncIndicator.innerText = "☁️ Đang kiểm tra...";
+                syncIndicator.style.opacity = "1";
+            }
+
             try {
-                const url = DEFAULT_SPREADSHEET_URL;
+                // Tải từ địa chỉ lưu trong LocalStorage hoặc fallback về Sheet của bạn
+                const url = localStorage.getItem('sync_gsheet_url') || DEFAULT_SPREADSHEET_URL;
                 let csvUrl = url;
                 const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
                 if (match && match[1]) {
@@ -1800,45 +1809,24 @@
                     if (newVocab.length > 0) {
                         VOCABULARY_DATA = newVocab;
                         localStorage.setItem('my_princess_hsk_vocab', JSON.stringify(VOCABULARY_DATA));
-                        // Cập nhật lại giao diện ngay khi tải xong từ mới
+                        
+                        // Cập nhật lại giao diện danh sách chủ đề một cách mượt mà
                         renderHomeScreen();
-                        showToast("🌸 Đã tự động cập nhật bài học mới từ anh yêu!");
+                        
+                        if (syncIndicator) {
+                            syncIndicator.innerText = "🌸 Đã cập nhật!";
+                            setTimeout(() => { syncIndicator.style.opacity = "0"; }, 3000);
+                        }
                     }
+                } else {
+                    throw new Error("Không phản hồi từ Google Sheets");
                 }
             } catch (e) {
-                console.log("Auto-sync failed, using local/cached data:", e);
-            }
-        }
-
-        async function triggerCloudSyncFromHome() {
-            const url = DEFAULT_SPREADSHEET_URL;
-            try {
-                showToast("⏳ Đang tải từ vựng mới...");
-                let csvUrl = url;
-                const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
-                if (match && match[1]) {
-                    const sheetId = match[1];
-                    csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
+                console.log("Auto-sync failed, using cached data:", e);
+                if (syncIndicator) {
+                    syncIndicator.innerText = "📴 Đang dùng offline";
+                    setTimeout(() => { syncIndicator.style.opacity = "0"; }, 3000);
                 }
-
-                const response = await fetch(csvUrl);
-                if (!response.ok) throw new Error("Tải bảng tính thất bại!");
-                const csvText = await response.text();
-                const parsedLines = parseCSV(csvText);
-                const newVocab = csvToJSON(parsedLines);
-
-                if (newVocab.length > 0) {
-                    VOCABULARY_DATA = newVocab;
-                    localStorage.setItem('my_princess_hsk_vocab', JSON.stringify(VOCABULARY_DATA));
-                    showToast(`🌸 Đồng bộ thành công ${newVocab.length} từ mới!`);
-                    CATEGORIES = [...new Set(VOCABULARY_DATA.map(item => item.category))];
-                    renderHomeScreen();
-                } else {
-                    throw new Error("Không có dữ liệu hợp lệ.");
-                }
-            } catch (err) {
-                console.error(err);
-                showToast("❌ Không tải được bài! Kiểm tra mạng nha bé.");
             }
         }
 
@@ -1846,7 +1834,6 @@
             const modal = document.getElementById('custom-confirm-modal');
             const title = document.getElementById('confirm-title');
             const desc = document.getElementById('confirm-desc');
-            const yesBtn = document.getElementById('confirm-yes-btn');
 
             if (type === 'reset') {
                 title.innerText = "Xác nhận đặt lại gốc";
@@ -1869,7 +1856,6 @@
             pendingConfirmAction = null;
         }
 
-        // Trích xuất nút "Đồng ý"
         document.getElementById('confirm-yes-btn').onclick = function() {
             if (pendingConfirmAction) pendingConfirmAction();
             closeConfirmModal();
@@ -1949,6 +1935,61 @@
                 console.error(err);
                 showToast("❌ Lỗi đồng bộ! Kiểm tra lại link chia sẻ nha.");
             }
+        }
+
+        function parseCSV(text) {
+            let lines = [];
+            let row = [""];
+            lines.push(row);
+            let inQuotes = false;
+            for (let i = 0; i < text.length; i++) {
+                let c = text[i];
+                let next = text[i+1];
+                if (c === '"') {
+                    if (inQuotes && next === '"') { row[row.length - 1] += '"'; i++; }
+                    else { inQuotes = !inQuotes; }
+                } else if (c === ',' && !inQuotes) {
+                    row.push('');
+                } else if ((c === '\r' || c === '\n') && !inQuotes) {
+                    if (c === '\r' && next === '\n') { i++; }
+                    row = [''];
+                    lines.push(row);
+                } else {
+                    row[row.length - 1] += c;
+                }
+            }
+            return lines.filter(r => r.length > 0 && r.some(cell => cell.trim() !== ''));
+        }
+
+        function csvToJSON(csvLines) {
+            if (csvLines.length < 2) return [];
+            const headers = csvLines[0].map(h => h.trim().toLowerCase());
+            
+            const hanziIdx = headers.findIndex(h => h.includes('hanzi') || h.includes('từ') || h.includes('chữ') || h.includes('hán'));
+            const pinyinIdx = headers.findIndex(h => h.includes('pinyin') || h.includes('phiên âm'));
+            const meaningIdx = headers.findIndex(h => h.includes('meaning') || h.includes('nghĩa'));
+            const categoryIdx = headers.findIndex(h => h.includes('category') || h.includes('chủ đề'));
+            const emojiIdx = headers.findIndex(h => h.includes('emoji') || h.includes('biểu tượng'));
+
+            if (hanziIdx === -1 || pinyinIdx === -1 || meaningIdx === -1) {
+                showToast("⚠️ Bảng thiếu cột Hanzi/Pinyin/Meaning!");
+                return [];
+            }
+
+            const list = [];
+            for (let i = 1; i < csvLines.length; i++) {
+                const row = csvLines[i];
+                const hanzi = row[hanziIdx]?.trim();
+                const pinyin = row[pinyinIdx]?.trim();
+                const meaning = row[meaningIdx]?.trim();
+                const category = (categoryIdx !== -1 && row[categoryIdx]) ? row[categoryIdx].trim() : "🍒 Ăn uống";
+                const emoji = (emojiIdx !== -1 && row[emojiIdx]) ? row[emojiIdx].trim() : "🌸";
+
+                if (hanzi && pinyin && meaning) {
+                    list.push({ hanzi, pinyin, meaning, category, emoji });
+                }
+            }
+            return list;
         }
 
         function processExcelImport() {
