@@ -581,26 +581,28 @@
         .match-board {
             width: 100%;
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-top: 10px;
+            grid-template-columns: repeat(3, 1fr); /* Đổi sang 3 cột để ôm trọn 12 thẻ cực gọn gàng */
+            gap: 8px; /* Thu hẹp khoảng cách các ô */
+            margin-top: 8px;
             flex: 1;
+            align-content: center;
         }
 
         .match-card {
             background-color: white;
-            border: 3px solid transparent;
-            border-radius: 20px;
-            padding: 18px 12px;
+            border: 2px solid transparent; /* Đơn giản hóa viền mỏng hơn */
+            border-radius: 14px; /* Bo góc nhẹ xinh hơn cho thẻ nhỏ */
+            padding: 8px 4px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            min-height: 84px;
+            min-height: 65px; /* Giảm chiều cao tối thiểu để vừa khít màn hình điện thoại nhỏ */
+            word-break: break-word; /* Chống tràn chữ khi nghĩa tiếng Việt dài */
         }
 
         .match-card:active {
@@ -610,8 +612,8 @@
         .match-card.selected {
             border-color: var(--primary);
             background-color: var(--primary-light);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(255, 138, 154, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(255, 138, 154, 0.15);
         }
 
         .match-card.matched {
@@ -626,6 +628,28 @@
             animation: shake 0.5s ease-in-out;
             border-color: #FF7675;
             background-color: #FFEBEB;
+        }
+
+        /* Tạo kiểu dáng chữ tinh tế bên trong thẻ ghép đôi */
+        .match-card-hanzi {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .match-card-meaning {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-dark);
+            line-height: 1.25;
+        }
+
+        .match-card-pinyin {
+            font-size: 9px;
+            opacity: 0.7;
+            color: var(--primary);
+            margin-top: 2px;
+            display: block;
         }
 
         @keyframes shake {
@@ -1589,8 +1613,8 @@
 
             let cards = [];
             wordsSlice.forEach(word => {
-                cards.push({ type: 'hanzi', val: word.hanzi, word: word });
-                cards.push({ type: 'meaning', val: `${word.meaning}<br><span style="font-size:11px; opacity:0.6;">${word.pinyin}</span>`, word: word });
+                cards.push({ type: 'hanzi', val: `<span class="match-card-hanzi">${word.hanzi}</span>`, word: word });
+                cards.push({ type: 'meaning', val: `<span class="match-card-meaning">${word.meaning}</span><span class="match-card-pinyin">${word.pinyin}</span>`, word: word });
             });
 
             cards.sort(() => Math.random() - 0.5);
